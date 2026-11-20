@@ -1,0 +1,30 @@
+name: CI
+
+# Run on every push (any branch) and on every pull request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      # Get the commit being checked onto the runner.
+      - uses: actions/checkout@v7
+
+      # Python 3.11 is the floor pyproject.toml promises (requires-python >= 3.11)
+      # and the version mypy and ruff are configured to check against.
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      # The exact pinned tool versions from requirements-dev.txt, same as SETUP.md.
+      - name: Install dev tools
+        run: pip install -r requirements-dev.txt
+
+      # pyproject.toml sets pythonpath = ["."] and testpaths = ["tests"].
+      - name: Run tests
+        run: pytest
