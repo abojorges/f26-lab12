@@ -53,6 +53,20 @@ def test_a_decision_carries_the_room_the_department_and_the_reason(booking, canc
     assert statement.adjustments[1] == "reason on file: room swap"
 
 
+@pytest.mark.parametrize(
+    "when",
+    [utc(2026, 3, 10, 14, 0), utc(2026, 3, 10, 14, 30)],
+    ids=["at-the-start", "half-an-hour-in"],
+)
+def test_a_cancellation_once_the_booking_has_started_settles_at_zero(booking, cancellation, when):
+    # policy.refund_cents: a booking that has already started is a no-show and settles
+    # at zero. Intervals are half-open, so the start instant itself counts as started.
+    statement = service.decide_refund(booking, cancellation(when))
+    assert statement.refund_cents == 0
+    assert statement.withheld_cents == 12000
+    assert statement.tier_name == "none"
+
+
 def test_a_batch_prices_every_cancellation_it_names(booking, cancellation):
     other = replace(booking, booking_id="bk-2292", price_as_booked_cents=4000)
     requests = [
