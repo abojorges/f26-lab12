@@ -1,1 +1,4 @@
-babel==2.9.0
+# babel: nothing in this repo imports it, but it is kept because something outside the
+# repo may rely on it. Pinned to 2.9.1, the patch release that fixes PYSEC-2021-421
+# (CVE-2021-42771, locale-file directory traversal) found by pip-audit in 2.9.0.
+babel==2.9.1
